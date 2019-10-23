@@ -1,18 +1,23 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[95]:
+# In[72]:
 
 
 import os
 import pandas as pd
 import numpy as np
 from collections import Counter
-from sklearn.pipeline import make_pipeline, Pipeline
-from sklearn.linear_model import LinearRegression
-from sklearn import preprocessing
+#from sklearn.pipeline import make_pipeline, Pipeline
+
+#from sklearn import preprocessing
 from sklearn import utils
-from sklearn.metrics import mean_squared_error, r2_score
+
+import datetime
+import csv
+#import nltk
+from sklearn.preprocessing import MultiLabelBinarizer
+
 
 import matplotlib.pyplot as plt
 get_ipython().run_line_magic('matplotlib', 'inline')
@@ -22,7 +27,7 @@ sns.set(style='white', context='notebook', palette='deep')
 from sklearn.model_selection import train_test_split
 
 
-# In[96]:
+# In[73]:
 
 
 # path for the csv files
@@ -33,20 +38,15 @@ def load_data(file_name):
     file_path = os.path.join(DATA_PATH, file_name) 
     return pd.read_csv(file_path, parse_dates = ['purchase_date', 'release_date'])
 
-
-# In[97]:
-
-
 def extract_dateinfo(df, col_name):
-    df[col_name+'_year'] = df.loc[:,col_name].apply(lambda x: x.year)
-    df[col_name+'_month'] = df.loc[:,col_name].apply(lambda x: x.month)
-    df[col_name+'_day'] = df.loc[:,col_name].apply(lambda x: x.day)
+    year = df[col_name].dt.year
+    #month = df[col_name].dt.month
+    #day = df[col_name].dt.day
     
+    df.loc[:, col_name+'_year'] = year
+    #df.loc[:, col_name+'_month'] = month
+    #df.loc[:, col_name+'_day'] = day
     return df
-
-
-# In[98]:
-
 
 #Outlier detection
 def detect_outliers(df, n, features):
@@ -63,11 +63,8 @@ def detect_outliers(df, n, features):
         Q1 = np.nanpercentile(df[col], 25)
         Q3 = np.nanpercentile(df[col], 75)
         IQR = Q3 - Q1
-        print(IQR)
         
-        outlier_step = 1.5 * IQR
-        
-        
+        outlier_step = 1.5 * IQR  
         
         # get the indices of outliers for feature col
         outliers_in_col = df[(df[col] < Q1 - outlier_step) | (df[col] > Q3 + outlier_step)].index
@@ -81,17 +78,13 @@ def detect_outliers(df, n, features):
     return result
 
 
-# In[99]:
+# In[74]:
 
 
 train_set = load_data('train.csv')
 test_set = load_data('test.csv')
 
-
-
-# In[100]:
-
-
+# Drop outliers from training data
 outliers_to_drop = detect_outliers(train_set, 2 ,['price', 'total_positive_reviews', 'total_negative_reviews'])
 train_set.loc[outliers_to_drop]
 train_set = train_set.drop(outliers_to_drop, axis = 0).reset_index(drop=True)
@@ -99,16 +92,9 @@ train_set = train_set.drop(outliers_to_drop, axis = 0).reset_index(drop=True)
 train_len = train_set.shape[0]
 test_len = test_set.shape[0]
 
-
-# In[101]:
-
-
-# game_info.head()
+# merge training data and testing data 
 game_info =  pd.concat(objs=[train_set, test_set], axis=0, sort=False).reset_index(drop=True)
-game_info
-
-
-# In[102]:
+#game_info.drop(columns=['id'], inplace=True)
 
 
 # check null values
@@ -124,100 +110,181 @@ game_info['total_negative_reviews'].fillna(0.0, inplace=True)
 #transfer boolean values to 1(true) and 0(false)
 game_info['is_free'] = game_info['is_free'].map({False: 0.0, True: 1.0})
 
-#drop outliers
+# extract year value
+game_info = extract_dateinfo(game_info, 'purchase_date')
+game_info = extract_dateinfo(game_info, 'release_date')
+game_info.drop(columns=['purchase_date', 'release_date'], inplace=True)
+
+
+# In[75]:
 
 
 # split strings in the categorical columns
-game_info['genres'] = game_info['genres'].str.split(',')
-game_info['categories'] = game_info['categories'].str.split(',')
-game_info['tags'] = game_info['tags'].str.split(',')
-
-game_info
-
-#game_info.isnull().sum()
-
-
-# In[103]:
+game_info['genres'] = game_info['genres'].str.split(',').apply(lambda x: list(map(lambda y: y.lower(), x)))
+game_info['categories'] = game_info['categories'].str.split(',').apply(lambda x: list(map(lambda y: y.lower(), x)))
+game_info['tags'] = game_info['tags'].str.split(',').apply(lambda x: list(map(lambda y: y.lower(), x)))
 
 
 #dataframe with only categorical values
 cate_df = game_info[['genres', 'categories', 'tags']]
 
+#one_and_two = set(genres) + set(categories) - set(genres) 
+#unique_tags = one_and_two + set(tags) - one_and_two 
+
+def _unique_tags_(row):
+    col1 = row.iloc[0]
+    col2 = row.iloc[1]
+    col3 = row.iloc[2]
+    one_two = set(col1) | set(col2)
+    return list(one_two | set(col3))
+
+game_info.loc[:, 'all_cate'] = cate_df.apply(_unique_tags_, axis=1)
+game_info.loc[:, 'cate_count'] = game_info['all_cate'].apply(lambda x: len(x))
+game_info.drop(columns=['genres', 'categories', 'tags'], inplace=True)
+
+#cate_df.loc[:, 'genres_count'] = cate_df['genres'].apply(lambda x: len(x))
+#cate_df.loc[:, 'cates_count'] = cate_df['categories'].apply(lambda x: len(x))
+#cate_df.loc[:, 'tags_count'] = cate_df['tags'].apply(lambda x: len(x))
+
+
+# In[76]:
+
+
+game_info.drop(columns=['id'], inplace=True)
+
+
+# In[77]:
+
+
+# Create MultiLabelBinarizer object
+mlb = MultiLabelBinarizer()
+
+# One-hot encode data
+cate_one_hot = mlb.fit_transform(game_info['all_cate'])
+
+#how many games belong to each category
+cate_count = list(np.count_nonzero(matrix, axis=0))
+# list of all the categories
+cates = list(one_hot.classes_)
+
+cate_dic = dict(zip(cates, cate_count))
+
+
+# In[78]:
+
+
+cate_dic
+
+
+# In[79]:
+
+
+game_info.drop(columns=['all_cate'], inplace=True)
+#game_info.iloc[0, 7]
+
+
+# In[80]:
+
 
 # one_hot encoding categorical columns 
-genres_df = pd.get_dummies(cate_df['genres'].apply(pd.Series).stack()).sum(level=0)
-categories_df = pd.get_dummies(cate_df['categories'].apply(pd.Series).stack()).sum(level=0)
-tags_df = pd.get_dummies(cate_df['tags'].apply(pd.Series).stack()).sum(level=0)
+#genres_df = pd.get_dummies(cate_df['genres'].apply(pd.Series).stack()).sum(level=0)
+#categories_df = pd.get_dummies(cate_df['categories'].apply(pd.Series).stack()).sum(level=0)
+#tags_df = pd.get_dummies(cate_df['tags'].apply(pd.Series).stack()).sum(level=0)
 
 # contatenate categorical dataframes with game_info
-game_df = pd.concat([game_info.drop(columns=['genres', 'categories', 'tags']), genres_df, categories_df, tags_df], axis=1, sort=False)
-game_df
+#game_df = pd.concat([game_info.drop(columns=['genres', 'categories', 'tags']), categories_df, tags_df], axis=1, sort=False)
+#game_df = pd.concat([game_df, cate_df.loc[:, ['genres_count','cates_count', 'tags_count']]], axis=1, sort=False)
+#game_df
 
 
-# In[104]:
+# In[81]:
 
 
 # drop duplicate columns
-game_df = game_df.loc[:, ~game_df.columns.duplicated()]
-game_df
+# game_df = game_df.loc[:, ~game_df.columns.duplicated()]
+# genres = list(game_df.columns[6:349])
+
+# print(len(genres))
+# with open('genres.txt', 'w') as f:
+#     for item in genres:
+#         f.write("%s\n" % item)
 
 
-# In[105]:
+# In[82]:
 
 
-game_df = extract_dateinfo(game_df, 'purchase_date')
-game_df = extract_dateinfo(game_df, 'release_date')
-game_df.drop(columns=['purchase_date', 'release_date'], inplace=True)
-#game_df.drop(['purchase_date'])
-#'purchase_date' in game_df
-#game_df.loc[:,'purchase_date']
-game_df
+train_data = game_info[:train_len]
+test_data = game_info[train_len:]
 
 
-# In[108]:
+# In[83]:
 
 
-train_data = game_df[:train_len]
-test_data = game_df[train_len:]
+plt.figure(figsize=(5, 9))
+
+features = ['playtime_forever', 'total_positive_reviews', 'purchase_date_year', 'release_date_year','cate_count', 'price']
+g = sns.heatmap(train_data[features].corr(),annot=True, cmap = "coolwarm")
+
+
+# In[84]:
+
 
 train_label = train_data['playtime_forever']
 train_data = train_data.drop(columns=['playtime_forever'])
-
-# split game_info into training and validating datasets
-X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.2, random_state=42)
-
-
 test_data.drop(columns=['playtime_forever'],inplace=True)
 
-print('X_train shape: ', X_train.shape)
-print('X_val shape: ', X_val.shape)
-print('y_train shape : ', y_train.shape)
-print('y_val shape : ', y_val.shape)
+
+# print('X_train shape: ', X_train.shape)
+# print('X_val shape: ', X_val.shape)
+# print('y_train shape : ', y_train.shape)
+# print('y_val shape : ', y_val.shape)
 
 
-# In[110]:
+# In[85]:
 
 
-#lab_enc = preprocessing.LabelEncoder()
-#train_encoded = lab_enc.fit_transform(y_train)
-#val_encoded = lab_enc.fit_transform(y_val)
+train_data.head()
 
-linreg = LinearRegression()
-linreg.fit(X_train, y_train)
-y_pred = linreg.predict(X_val)
 
+# In[86]:
+
+
+X_train, X_val, y_train, y_val = train_test_split(train_data, train_label, test_size=0.2, random_state=42)
+
+
+# In[96]:
+
+
+from sklearn import datasets, linear_model
+from sklearn.model_selection import cross_val_score
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import mean_squared_error, make_scorer
+from sklearn.linear_model import LinearRegression
+
+scaler = StandardScaler()
+scaler.fit(X_train)
+scaler.transform(X_train)
+
+def rmse(y_val, y_val_pred):
+    return np.sqrt(mean_squared_error(y_val, y_val_pred))
+score = make_scorer(rmse, greater_is_better=True)
+#linreg = LinearRegression()
+#linreg.fit(X_train, y_train)
+
+model = linear_model.LinearRegression()
+y_val_pred = linreg.predict(X_val)
 y_test_pred = linreg.predict(test_data)
+print(cross_val_score(model, X_train, y_train, cv=3, scoring=score))  
+#print(linreg.score(X_train, y_train))
 
-print("Mean squared error: %.2f"
-      % mean_squared_error(y_val, y_pred))
-
-print(y_test_pred)
-
-
-# In[119]:
+print("Root Mean squared error: %.2f"
+      % np.sqrt(mean_squared_error(y_val, y_val_pred)))
 
 
-import csv
+# In[35]:
+
+
+
 
 result_df = pd.DataFrame(y_test_pred, columns =['playtime_forever']) 
 result_df.index.name = 'id'

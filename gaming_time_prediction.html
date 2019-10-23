@@ -13076,18 +13076,23 @@ div#notebook {
 
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[95]:</div>
+<div class="prompt input_prompt">In&nbsp;[72]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">Counter</span>
-<span class="kn">from</span> <span class="nn">sklearn.pipeline</span> <span class="k">import</span> <span class="n">make_pipeline</span><span class="p">,</span> <span class="n">Pipeline</span>
-<span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="k">import</span> <span class="n">LinearRegression</span>
-<span class="kn">from</span> <span class="nn">sklearn</span> <span class="k">import</span> <span class="n">preprocessing</span>
+<span class="c1">#from sklearn.pipeline import make_pipeline, Pipeline</span>
+
+<span class="c1">#from sklearn import preprocessing</span>
 <span class="kn">from</span> <span class="nn">sklearn</span> <span class="k">import</span> <span class="n">utils</span>
-<span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="k">import</span> <span class="n">mean_squared_error</span><span class="p">,</span> <span class="n">r2_score</span>
+
+<span class="kn">import</span> <span class="nn">datetime</span>
+<span class="kn">import</span> <span class="nn">csv</span>
+<span class="c1">#import nltk</span>
+<span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="k">import</span> <span class="n">MultiLabelBinarizer</span>
+
 
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 <span class="o">%</span><span class="k">matplotlib</span> inline
@@ -13104,7 +13109,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[96]:</div>
+<div class="prompt input_prompt">In&nbsp;[73]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># path for the csv files</span>
@@ -13114,37 +13119,18 @@ div#notebook {
 <span class="k">def</span> <span class="nf">load_data</span><span class="p">(</span><span class="n">file_name</span><span class="p">):</span> 
     <span class="n">file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">DATA_PATH</span><span class="p">,</span> <span class="n">file_name</span><span class="p">)</span> 
     <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">parse_dates</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;purchase_date&#39;</span><span class="p">,</span> <span class="s1">&#39;release_date&#39;</span><span class="p">])</span>
-</pre></div>
 
-    </div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[97]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">extract_dateinfo</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">col_name</span><span class="p">):</span>
-    <span class="n">df</span><span class="p">[</span><span class="n">col_name</span><span class="o">+</span><span class="s1">&#39;_year&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span><span class="n">col_name</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">year</span><span class="p">)</span>
-    <span class="n">df</span><span class="p">[</span><span class="n">col_name</span><span class="o">+</span><span class="s1">&#39;_month&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span><span class="n">col_name</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">month</span><span class="p">)</span>
-    <span class="n">df</span><span class="p">[</span><span class="n">col_name</span><span class="o">+</span><span class="s1">&#39;_day&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span><span class="n">col_name</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">day</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">extract_dateinfo</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">col_name</span><span class="p">):</span>
+    <span class="n">year</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">col_name</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">year</span>
+    <span class="c1">#month = df[col_name].dt.month</span>
+    <span class="c1">#day = df[col_name].dt.day</span>
     
+    <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="n">col_name</span><span class="o">+</span><span class="s1">&#39;_year&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">year</span>
+    <span class="c1">#df.loc[:, col_name+&#39;_month&#39;] = month</span>
+    <span class="c1">#df.loc[:, col_name+&#39;_day&#39;] = day</span>
     <span class="k">return</span> <span class="n">df</span>
-</pre></div>
 
-    </div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[98]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1">#Outlier detection</span>
+<span class="c1">#Outlier detection</span>
 <span class="k">def</span> <span class="nf">detect_outliers</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">features</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Takes a dataframe df of features and returns a list of the indices</span>
@@ -13159,11 +13145,8 @@ div#notebook {
         <span class="n">Q1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanpercentile</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">],</span> <span class="mi">25</span><span class="p">)</span>
         <span class="n">Q3</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanpercentile</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">],</span> <span class="mi">75</span><span class="p">)</span>
         <span class="n">IQR</span> <span class="o">=</span> <span class="n">Q3</span> <span class="o">-</span> <span class="n">Q1</span>
-        <span class="nb">print</span><span class="p">(</span><span class="n">IQR</span><span class="p">)</span>
         
-        <span class="n">outlier_step</span> <span class="o">=</span> <span class="mf">1.5</span> <span class="o">*</span> <span class="n">IQR</span>
-        
-        
+        <span class="n">outlier_step</span> <span class="o">=</span> <span class="mf">1.5</span> <span class="o">*</span> <span class="n">IQR</span>  
         
         <span class="c1"># get the indices of outliers for feature col</span>
         <span class="n">outliers_in_col</span> <span class="o">=</span> <span class="n">df</span><span class="p">[(</span><span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">Q1</span> <span class="o">-</span> <span class="n">outlier_step</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">Q3</span> <span class="o">+</span> <span class="n">outlier_step</span><span class="p">)]</span><span class="o">.</span><span class="n">index</span>
@@ -13184,11 +13167,42 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[99]:</div>
+<div class="prompt input_prompt">In&nbsp;[74]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">train_set</span> <span class="o">=</span> <span class="n">load_data</span><span class="p">(</span><span class="s1">&#39;train.csv&#39;</span><span class="p">)</span>
 <span class="n">test_set</span> <span class="o">=</span> <span class="n">load_data</span><span class="p">(</span><span class="s1">&#39;test.csv&#39;</span><span class="p">)</span>
+
+<span class="c1"># Drop outliers from training data</span>
+<span class="n">outliers_to_drop</span> <span class="o">=</span> <span class="n">detect_outliers</span><span class="p">(</span><span class="n">train_set</span><span class="p">,</span> <span class="mi">2</span> <span class="p">,[</span><span class="s1">&#39;price&#39;</span><span class="p">,</span> <span class="s1">&#39;total_positive_reviews&#39;</span><span class="p">,</span> <span class="s1">&#39;total_negative_reviews&#39;</span><span class="p">])</span>
+<span class="n">train_set</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">outliers_to_drop</span><span class="p">]</span>
+<span class="n">train_set</span> <span class="o">=</span> <span class="n">train_set</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">outliers_to_drop</span><span class="p">,</span> <span class="n">axis</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="n">train_len</span> <span class="o">=</span> <span class="n">train_set</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">test_len</span> <span class="o">=</span> <span class="n">test_set</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+<span class="c1"># merge training data and testing data </span>
+<span class="n">game_info</span> <span class="o">=</span>  <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">objs</span><span class="o">=</span><span class="p">[</span><span class="n">train_set</span><span class="p">,</span> <span class="n">test_set</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="c1">#game_info.drop(columns=[&#39;id&#39;], inplace=True)</span>
+
+
+<span class="c1"># check null values</span>
+<span class="n">game_info</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="c1">#fill missing purchase date with the most frequent value in purchase_date column</span>
+<span class="n">game_info</span><span class="p">[</span><span class="s1">&#39;purchase_date&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">game_info</span><span class="p">[</span><span class="s1">&#39;purchase_date&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mode</span><span class="p">()[</span><span class="mi">0</span><span class="p">],</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="c1">#fille missing number of positive_reviews and negative_reviews with zeros</span>
+<span class="n">game_info</span><span class="p">[</span><span class="s1">&#39;total_positive_reviews&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">game_info</span><span class="p">[</span><span class="s1">&#39;total_negative_reviews&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="c1">#transfer boolean values to 1(true) and 0(false)</span>
+<span class="n">game_info</span><span class="p">[</span><span class="s1">&#39;is_free&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">game_info</span><span class="p">[</span><span class="s1">&#39;is_free&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">({</span><span class="kc">False</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span> <span class="kc">True</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">})</span>
+
+<span class="c1"># extract year value</span>
+<span class="n">game_info</span> <span class="o">=</span> <span class="n">extract_dateinfo</span><span class="p">(</span><span class="n">game_info</span><span class="p">,</span> <span class="s1">&#39;purchase_date&#39;</span><span class="p">)</span>
+<span class="n">game_info</span> <span class="o">=</span> <span class="n">extract_dateinfo</span><span class="p">(</span><span class="n">game_info</span><span class="p">,</span> <span class="s1">&#39;release_date&#39;</span><span class="p">)</span>
+<span class="n">game_info</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;purchase_date&#39;</span><span class="p">,</span> <span class="s1">&#39;release_date&#39;</span><span class="p">],</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 
     </div>
@@ -13198,15 +13212,532 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[100]:</div>
+<div class="prompt input_prompt">In&nbsp;[75]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">outliers_to_drop</span> <span class="o">=</span> <span class="n">detect_outliers</span><span class="p">(</span><span class="n">train_set</span><span class="p">,</span> <span class="mi">2</span> <span class="p">,[</span><span class="s1">&#39;price&#39;</span><span class="p">,</span> <span class="s1">&#39;total_positive_reviews&#39;</span><span class="p">,</span> <span class="s1">&#39;total_negative_reviews&#39;</span><span class="p">])</span>
-<span class="n">train_set</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">outliers_to_drop</span><span class="p">]</span>
-<span class="n">train_set</span> <span class="o">=</span> <span class="n">train_set</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">outliers_to_drop</span><span class="p">,</span> <span class="n">axis</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># split strings in the categorical columns</span>
+<span class="n">game_info</span><span class="p">[</span><span class="s1">&#39;genres&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">game_info</span><span class="p">[</span><span class="s1">&#39;genres&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">y</span><span class="p">:</span> <span class="n">y</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="n">x</span><span class="p">)))</span>
+<span class="n">game_info</span><span class="p">[</span><span class="s1">&#39;categories&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">game_info</span><span class="p">[</span><span class="s1">&#39;categories&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">y</span><span class="p">:</span> <span class="n">y</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="n">x</span><span class="p">)))</span>
+<span class="n">game_info</span><span class="p">[</span><span class="s1">&#39;tags&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">game_info</span><span class="p">[</span><span class="s1">&#39;tags&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">y</span><span class="p">:</span> <span class="n">y</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="n">x</span><span class="p">)))</span>
 
-<span class="n">train_len</span> <span class="o">=</span> <span class="n">train_set</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-<span class="n">test_len</span> <span class="o">=</span> <span class="n">test_set</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+<span class="c1">#dataframe with only categorical values</span>
+<span class="n">cate_df</span> <span class="o">=</span> <span class="n">game_info</span><span class="p">[[</span><span class="s1">&#39;genres&#39;</span><span class="p">,</span> <span class="s1">&#39;categories&#39;</span><span class="p">,</span> <span class="s1">&#39;tags&#39;</span><span class="p">]]</span>
+
+<span class="c1">#one_and_two = set(genres) + set(categories) - set(genres) </span>
+<span class="c1">#unique_tags = one_and_two + set(tags) - one_and_two </span>
+
+<span class="k">def</span> <span class="nf">_unique_tags_</span><span class="p">(</span><span class="n">row</span><span class="p">):</span>
+    <span class="n">col1</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">col2</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">col3</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+    <span class="n">one_two</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">col1</span><span class="p">)</span> <span class="o">|</span> <span class="nb">set</span><span class="p">(</span><span class="n">col2</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">one_two</span> <span class="o">|</span> <span class="nb">set</span><span class="p">(</span><span class="n">col3</span><span class="p">))</span>
+
+<span class="n">game_info</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s1">&#39;all_cate&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cate_df</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">_unique_tags_</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">game_info</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s1">&#39;cate_count&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">game_info</span><span class="p">[</span><span class="s1">&#39;all_cate&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+<span class="n">game_info</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;genres&#39;</span><span class="p">,</span> <span class="s1">&#39;categories&#39;</span><span class="p">,</span> <span class="s1">&#39;tags&#39;</span><span class="p">],</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="c1">#cate_df.loc[:, &#39;genres_count&#39;] = cate_df[&#39;genres&#39;].apply(lambda x: len(x))</span>
+<span class="c1">#cate_df.loc[:, &#39;cates_count&#39;] = cate_df[&#39;categories&#39;].apply(lambda x: len(x))</span>
+<span class="c1">#cate_df.loc[:, &#39;tags_count&#39;] = cate_df[&#39;tags&#39;].apply(lambda x: len(x))</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[76]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">game_info</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">],</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[77]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Create MultiLabelBinarizer object</span>
+<span class="n">mlb</span> <span class="o">=</span> <span class="n">MultiLabelBinarizer</span><span class="p">()</span>
+
+<span class="c1"># One-hot encode data</span>
+<span class="n">cate_one_hot</span> <span class="o">=</span> <span class="n">mlb</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">game_info</span><span class="p">[</span><span class="s1">&#39;all_cate&#39;</span><span class="p">])</span>
+
+<span class="c1">#how many games belong to each category</span>
+<span class="n">cate_count</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">count_nonzero</span><span class="p">(</span><span class="n">matrix</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
+<span class="c1"># list of all the categories</span>
+<span class="n">cates</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">one_hot</span><span class="o">.</span><span class="n">classes_</span><span class="p">)</span>
+
+<span class="n">cate_dic</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">cates</span><span class="p">,</span> <span class="n">cate_count</span><span class="p">))</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[78]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">cate_dic</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt output_prompt">Out[78]:</div>
+
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>{&#39;1980s&#39;: 7,
+ &#34;1990&#39;s&#34;: 12,
+ &#39;2.5d&#39;: 7,
+ &#39;2d&#39;: 103,
+ &#39;3d&#39;: 3,
+ &#39;3d platformer&#39;: 14,
+ &#39;3d vision&#39;: 13,
+ &#39;4 player local&#39;: 9,
+ &#39;4x&#39;: 12,
+ &#39;action&#39;: 278,
+ &#39;action rpg&#39;: 40,
+ &#39;action-adventure&#39;: 15,
+ &#39;addictive&#39;: 8,
+ &#39;adventure&#39;: 338,
+ &#39;aliens&#39;: 16,
+ &#39;alternate history&#39;: 13,
+ &#39;america&#39;: 2,
+ &#39;animation &amp; modeling&#39;: 3,
+ &#39;anime&#39;: 22,
+ &#39;arcade&#39;: 18,
+ &#39;arena shooter&#39;: 3,
+ &#39;artificial intelligence&#39;: 1,
+ &#39;assassin&#39;: 5,
+ &#39;atmospheric&#39;: 234,
+ &#39;atv&#39;: 1,
+ &#39;audio production&#39;: 1,
+ &#39;automation&#39;: 2,
+ &#39;base building&#39;: 19,
+ &#39;based on a novel&#39;: 6,
+ &#39;batman&#39;: 2,
+ &#39;battle royale&#39;: 4,
+ &#34;beat &#39;em up&#34;: 15,
+ &#39;beautiful&#39;: 17,
+ &#39;benchmark&#39;: 4,
+ &#39;bikes&#39;: 1,
+ &#39;blood&#39;: 4,
+ &#39;board game&#39;: 7,
+ &#39;building&#39;: 30,
+ &#39;bullet hell&#39;: 1,
+ &#39;bullet time&#39;: 4,
+ &#39;capitalism&#39;: 1,
+ &#39;captions available&#39;: 36,
+ &#39;card game&#39;: 10,
+ &#39;cartoon&#39;: 3,
+ &#39;cartoony&#39;: 6,
+ &#39;casual&#39;: 93,
+ &#39;cats&#39;: 3,
+ &#39;character action game&#39;: 5,
+ &#39;character customization&#39;: 30,
+ &#39;chess&#39;: 1,
+ &#39;choices matter&#39;: 45,
+ &#39;choose your own adventure&#39;: 11,
+ &#39;cinematic&#39;: 9,
+ &#39;city builder&#39;: 11,
+ &#39;classic&#39;: 52,
+ &#39;clicker&#39;: 1,
+ &#39;co-op&#39;: 138,
+ &#39;co-op campaign&#39;: 2,
+ &#39;cold war&#39;: 1,
+ &#39;colorful&#39;: 20,
+ &#39;comedy&#39;: 69,
+ &#39;comic book&#39;: 4,
+ &#39;commentary available&#39;: 7,
+ &#39;competitive&#39;: 9,
+ &#39;conspiracy&#39;: 1,
+ &#39;controller&#39;: 31,
+ &#39;crafting&#39;: 30,
+ &#39;crime&#39;: 15,
+ &#39;cross-platform multiplayer&#39;: 41,
+ &#39;crowdfunded&#39;: 8,
+ &#39;crpg&#39;: 17,
+ &#39;cult classic&#39;: 18,
+ &#39;cute&#39;: 23,
+ &#39;cyberpunk&#39;: 22,
+ &#39;dark&#39;: 38,
+ &#39;dark comedy&#39;: 2,
+ &#39;dark fantasy&#39;: 24,
+ &#39;dark humor&#39;: 17,
+ &#39;dating sim&#39;: 4,
+ &#39;demons&#39;: 3,
+ &#39;design &amp; illustration&#39;: 4,
+ &#39;destruction&#39;: 7,
+ &#39;detective&#39;: 24,
+ &#39;difficult&#39;: 79,
+ &#39;dinosaurs&#39;: 4,
+ &#39;diplomacy&#39;: 4,
+ &#39;documentary&#39;: 1,
+ &#39;dragons&#39;: 11,
+ &#39;drama&#39;: 9,
+ &#39;driving&#39;: 3,
+ &#39;dungeon crawler&#39;: 15,
+ &#39;dungeons &amp; dragons&#39;: 3,
+ &#39;dynamic narration&#39;: 5,
+ &#39;dystopian&#39;: 22,
+ &#39;early access&#39;: 51,
+ &#39;economy&#39;: 11,
+ &#39;education&#39;: 12,
+ &#39;emotional&#39;: 5,
+ &#39;epic&#39;: 3,
+ &#39;episodic&#39;: 11,
+ &#39;esports&#39;: 2,
+ &#39;experience&#39;: 1,
+ &#39;experimental&#39;: 7,
+ &#39;exploration&#39;: 77,
+ &#39;family friendly&#39;: 23,
+ &#39;fantasy&#39;: 113,
+ &#39;fast-paced&#39;: 13,
+ &#39;female protagonist&#39;: 62,
+ &#39;fighting&#39;: 10,
+ &#39;first-person&#39;: 97,
+ &#39;flight&#39;: 2,
+ &#39;fmv&#39;: 8,
+ &#39;fps&#39;: 65,
+ &#39;free to play&#39;: 29,
+ &#39;full controller support&#39;: 190,
+ &#39;funny&#39;: 86,
+ &#39;futuristic&#39;: 23,
+ &#39;game development&#39;: 1,
+ &#39;gamemaker&#39;: 1,
+ &#39;games workshop&#39;: 2,
+ &#39;god game&#39;: 5,
+ &#39;gore&#39;: 61,
+ &#39;gothic&#39;: 3,
+ &#39;grand strategy&#39;: 12,
+ &#39;great soundtrack&#39;: 233,
+ &#39;gun customization&#39;: 2,
+ &#39;hack and slash&#39;: 40,
+ &#39;hacking&#39;: 6,
+ &#39;hand-drawn&#39;: 17,
+ &#39;heist&#39;: 4,
+ &#39;hex grid&#39;: 5,
+ &#39;hidden object&#39;: 4,
+ &#39;historical&#39;: 28,
+ &#39;horror&#39;: 79,
+ &#39;horses&#39;: 2,
+ &#39;hunting&#39;: 5,
+ &#39;illuminati&#39;: 8,
+ &#39;immersive sim&#39;: 3,
+ &#39;in-app purchases&#39;: 15,
+ &#39;includes level editor&#39;: 46,
+ &#39;includes source sdk&#39;: 2,
+ &#39;indie&#39;: 263,
+ &#39;intentionally awkward controls&#39;: 1,
+ &#39;interactive fiction&#39;: 10,
+ &#39;inventory management&#39;: 3,
+ &#39;investigation&#39;: 2,
+ &#39;isometric&#39;: 36,
+ &#39;jrpg&#39;: 9,
+ &#39;kickstarter&#39;: 21,
+ &#39;lara croft&#39;: 3,
+ &#39;level editor&#39;: 8,
+ &#39;lgbtq+&#39;: 2,
+ &#39;linear&#39;: 7,
+ &#39;local co-op&#39;: 48,
+ &#39;local multi-player&#39;: 16,
+ &#39;local multiplayer&#39;: 15,
+ &#39;logic&#39;: 1,
+ &#39;loot&#39;: 10,
+ &#39;lore-rich&#39;: 2,
+ &#39;lovecraftian&#39;: 9,
+ &#39;magic&#39;: 22,
+ &#39;management&#39;: 18,
+ &#39;mars&#39;: 3,
+ &#39;martial arts&#39;: 2,
+ &#39;massively multiplayer&#39;: 27,
+ &#39;masterpiece&#39;: 99,
+ &#39;mature&#39;: 27,
+ &#39;mechs&#39;: 5,
+ &#39;medieval&#39;: 25,
+ &#39;memes&#39;: 18,
+ &#39;metroidvania&#39;: 12,
+ &#39;military&#39;: 14,
+ &#39;minigames&#39;: 2,
+ &#39;minimalist&#39;: 3,
+ &#39;mmo&#39;: 8,
+ &#39;mmorpg&#39;: 6,
+ &#39;moba&#39;: 2,
+ &#39;mod&#39;: 4,
+ &#39;moddable&#39;: 42,
+ &#39;modern&#39;: 1,
+ &#39;motocross&#39;: 1,
+ &#39;motorbike&#39;: 1,
+ &#39;mouse only&#39;: 7,
+ &#39;movie&#39;: 1,
+ &#39;multi-player&#39;: 117,
+ &#39;multiplayer&#39;: 178,
+ &#39;multiple endings&#39;: 18,
+ &#39;music&#39;: 13,
+ &#39;music-based procedural generation&#39;: 2,
+ &#39;mystery&#39;: 42,
+ &#39;mythology&#39;: 8,
+ &#39;narration&#39;: 9,
+ &#39;nature&#39;: 4,
+ &#39;naval&#39;: 2,
+ &#39;ninja&#39;: 5,
+ &#39;noir&#39;: 10,
+ &#39;nonlinear&#39;: 5,
+ &#39;nudity&#39;: 38,
+ &#39;offroad&#39;: 1,
+ &#39;old school&#39;: 10,
+ &#39;on-rails shooter&#39;: 1,
+ &#39;online co-op&#39;: 82,
+ &#39;online multi-player&#39;: 58,
+ &#39;open world&#39;: 154,
+ &#39;parkour&#39;: 18,
+ &#39;parody&#39;: 3,
+ &#39;partial controller support&#39;: 74,
+ &#39;party-based rpg&#39;: 10,
+ &#39;perma death&#39;: 8,
+ &#39;philisophical&#39;: 6,
+ &#39;physics&#39;: 13,
+ &#39;pirates&#39;: 3,
+ &#39;pixel graphics&#39;: 34,
+ &#39;platformer&#39;: 48,
+ &#39;point &amp; click&#39;: 60,
+ &#39;political&#39;: 14,
+ &#39;politics&#39;: 7,
+ &#39;post-apocalyptic&#39;: 28,
+ &#39;procedural generation&#39;: 13,
+ &#39;programming&#39;: 2,
+ &#39;psychedelic&#39;: 4,
+ &#39;psychological&#39;: 6,
+ &#39;psychological horror&#39;: 36,
+ &#39;puzzle&#39;: 102,
+ &#39;puzzle-platformer&#39;: 12,
+ &#39;pve&#39;: 2,
+ &#39;pvp&#39;: 11,
+ &#39;quick-time events&#39;: 4,
+ &#39;racing&#39;: 6,
+ &#39;real time tactics&#39;: 6,
+ &#39;real-time&#39;: 5,
+ &#39;real-time with pause&#39;: 19,
+ &#39;realistic&#39;: 20,
+ &#39;relaxing&#39;: 15,
+ &#39;remake&#39;: 16,
+ &#39;remote play on phone&#39;: 19,
+ &#39;remote play on tablet&#39;: 19,
+ &#39;remote play on tv&#39;: 13,
+ &#39;replay value&#39;: 29,
+ &#39;resource management&#39;: 12,
+ &#39;retro&#39;: 37,
+ &#39;rhythm&#39;: 4,
+ &#39;robots&#39;: 13,
+ &#39;rogue-like&#39;: 24,
+ &#39;rogue-lite&#39;: 16,
+ &#39;romance&#39;: 7,
+ &#39;rome&#39;: 2,
+ &#39;rpg&#39;: 160,
+ &#39;rpgmaker&#39;: 4,
+ &#39;rts&#39;: 27,
+ &#39;sailing&#39;: 1,
+ &#39;sandbox&#39;: 80,
+ &#39;satire&#39;: 3,
+ &#39;sci-fi&#39;: 119,
+ &#39;science&#39;: 5,
+ &#39;score attack&#39;: 2,
+ &#39;sequel&#39;: 1,
+ &#39;sexual content&#39;: 16,
+ &#39;shared/split screen&#39;: 40,
+ &#34;shoot &#39;em up&#34;: 2,
+ &#39;shooter&#39;: 85,
+ &#39;short&#39;: 33,
+ &#39;side scroller&#39;: 24,
+ &#39;silent protagonist&#39;: 2,
+ &#39;simulation&#39;: 103,
+ &#39;single-player&#39;: 426,
+ &#39;singleplayer&#39;: 373,
+ &#39;sniper&#39;: 1,
+ &#39;snowboarding&#39;: 1,
+ &#39;software&#39;: 1,
+ &#39;souls-like&#39;: 3,
+ &#39;soundtrack&#39;: 1,
+ &#39;space&#39;: 43,
+ &#39;space sim&#39;: 8,
+ &#39;spectacle fighter&#39;: 6,
+ &#39;split screen&#39;: 7,
+ &#39;sports&#39;: 11,
+ &#39;star wars&#39;: 1,
+ &#39;stats&#39;: 32,
+ &#39;stealth&#39;: 38,
+ &#39;steam achievements&#39;: 335,
+ &#39;steam cloud&#39;: 275,
+ &#39;steam leaderboards&#39;: 62,
+ &#39;steam trading cards&#39;: 287,
+ &#39;steam workshop&#39;: 62,
+ &#39;steampunk&#39;: 20,
+ &#39;steamvr collectibles&#39;: 10,
+ &#39;story rich&#39;: 189,
+ &#39;strategy&#39;: 138,
+ &#39;strategy rpg&#39;: 4,
+ &#39;stylized&#39;: 5,
+ &#39;submarine&#39;: 3,
+ &#39;superhero&#39;: 4,
+ &#39;supernatural&#39;: 6,
+ &#39;surreal&#39;: 12,
+ &#39;survival&#39;: 79,
+ &#39;survival horror&#39;: 23,
+ &#39;swordplay&#39;: 6,
+ &#39;tactical&#39;: 30,
+ &#39;tactical rpg&#39;: 3,
+ &#39;tanks&#39;: 1,
+ &#39;team-based&#39;: 8,
+ &#39;tennis&#39;: 1,
+ &#39;text-based&#39;: 1,
+ &#39;third person&#39;: 88,
+ &#39;third-person shooter&#39;: 30,
+ &#39;thriller&#39;: 11,
+ &#39;time manipulation&#39;: 3,
+ &#39;time travel&#39;: 8,
+ &#39;top-down&#39;: 19,
+ &#39;top-down shooter&#39;: 7,
+ &#39;touch-friendly&#39;: 4,
+ &#39;tower defense&#39;: 7,
+ &#39;trading&#39;: 4,
+ &#39;trading card game&#39;: 2,
+ &#39;trains&#39;: 2,
+ &#39;transhumanism&#39;: 2,
+ &#39;transportation&#39;: 1,
+ &#39;turn-based&#39;: 40,
+ &#39;turn-based combat&#39;: 10,
+ &#39;turn-based strategy&#39;: 24,
+ &#39;turn-based tactics&#39;: 8,
+ &#39;twin stick shooter&#39;: 7,
+ &#39;typing&#39;: 1,
+ &#39;underground&#39;: 1,
+ &#39;underwater&#39;: 11,
+ &#39;unforgiving&#39;: 1,
+ &#39;utilities&#39;: 3,
+ &#39;valve anti-cheat enabled&#39;: 12,
+ &#39;villain protagonist&#39;: 8,
+ &#39;violent&#39;: 43,
+ &#39;visual novel&#39;: 26,
+ &#39;voxel&#39;: 3,
+ &#39;vr&#39;: 45,
+ &#39;vr support&#39;: 12,
+ &#39;walking simulator&#39;: 35,
+ &#39;war&#39;: 22,
+ &#39;wargame&#39;: 1,
+ &#39;warhammer 40k&#39;: 2,
+ &#39;western&#39;: 3,
+ &#39;world war i&#39;: 2,
+ &#39;world war ii&#39;: 8,
+ &#39;zombies&#39;: 18}</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[79]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">game_info</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;all_cate&#39;</span><span class="p">],</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="c1">#game_info.iloc[0, 7]</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[80]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># one_hot encoding categorical columns </span>
+<span class="c1">#genres_df = pd.get_dummies(cate_df[&#39;genres&#39;].apply(pd.Series).stack()).sum(level=0)</span>
+<span class="c1">#categories_df = pd.get_dummies(cate_df[&#39;categories&#39;].apply(pd.Series).stack()).sum(level=0)</span>
+<span class="c1">#tags_df = pd.get_dummies(cate_df[&#39;tags&#39;].apply(pd.Series).stack()).sum(level=0)</span>
+
+<span class="c1"># contatenate categorical dataframes with game_info</span>
+<span class="c1">#game_df = pd.concat([game_info.drop(columns=[&#39;genres&#39;, &#39;categories&#39;, &#39;tags&#39;]), categories_df, tags_df], axis=1, sort=False)</span>
+<span class="c1">#game_df = pd.concat([game_df, cate_df.loc[:, [&#39;genres_count&#39;,&#39;cates_count&#39;, &#39;tags_count&#39;]]], axis=1, sort=False)</span>
+<span class="c1">#game_df</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[81]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># drop duplicate columns</span>
+<span class="c1"># game_df = game_df.loc[:, ~game_df.columns.duplicated()]</span>
+<span class="c1"># genres = list(game_df.columns[6:349])</span>
+
+<span class="c1"># print(len(genres))</span>
+<span class="c1"># with open(&#39;genres.txt&#39;, &#39;w&#39;) as f:</span>
+<span class="c1">#     for item in genres:</span>
+<span class="c1">#         f.write(&quot;%s\n&quot; % item)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[82]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">train_data</span> <span class="o">=</span> <span class="n">game_info</span><span class="p">[:</span><span class="n">train_len</span><span class="p">]</span>
+<span class="n">test_data</span> <span class="o">=</span> <span class="n">game_info</span><span class="p">[</span><span class="n">train_len</span><span class="p">:]</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[83]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">9</span><span class="p">))</span>
+
+<span class="n">features</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;playtime_forever&#39;</span><span class="p">,</span> <span class="s1">&#39;total_positive_reviews&#39;</span><span class="p">,</span> <span class="s1">&#39;purchase_date_year&#39;</span><span class="p">,</span> <span class="s1">&#39;release_date_year&#39;</span><span class="p">,</span><span class="s1">&#39;cate_count&#39;</span><span class="p">,</span> <span class="s1">&#39;price&#39;</span><span class="p">]</span>
+<span class="n">g</span> <span class="o">=</span> <span class="n">sns</span><span class="o">.</span><span class="n">heatmap</span><span class="p">(</span><span class="n">train_data</span><span class="p">[</span><span class="n">features</span><span class="p">]</span><span class="o">.</span><span class="n">corr</span><span class="p">(),</span><span class="n">annot</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">cmap</span> <span class="o">=</span> <span class="s2">&quot;coolwarm&quot;</span><span class="p">)</span>
 </pre></div>
 
     </div>
@@ -13222,233 +13753,12 @@ div#notebook {
     <div class="prompt"></div>
 
 
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>5400.0
-8867.5
-1105.0
-</pre>
-</div>
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[101]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># game_info.head()</span>
-<span class="n">game_info</span> <span class="o">=</span>  <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">objs</span><span class="o">=</span><span class="p">[</span><span class="n">train_set</span><span class="p">,</span> <span class="n">test_set</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="n">game_info</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
 
 
-<div class="output_area">
-
-    <div class="prompt output_prompt">Out[101]:</div>
-
-
-
-<div class="output_html rendered_html output_subarea output_execute_result">
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>id</th>
-      <th>playtime_forever</th>
-      <th>is_free</th>
-      <th>price</th>
-      <th>genres</th>
-      <th>categories</th>
-      <th>tags</th>
-      <th>purchase_date</th>
-      <th>release_date</th>
-      <th>total_positive_reviews</th>
-      <th>total_negative_reviews</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>0</td>
-      <td>0</td>
-      <td>0.000000</td>
-      <td>False</td>
-      <td>3700.0</td>
-      <td>Adventure,Casual,Indie</td>
-      <td>Single-player,Steam Trading Cards,Steam Cloud</td>
-      <td>Indie,Adventure,Story Rich,Casual,Atmospheric,...</td>
-      <td>2018-07-02</td>
-      <td>2013-12-10</td>
-      <td>372.0</td>
-      <td>96.0</td>
-    </tr>
-    <tr>
-      <td>1</td>
-      <td>1</td>
-      <td>0.016667</td>
-      <td>True</td>
-      <td>0.0</td>
-      <td>RPG</td>
-      <td>Single-player,Partial Controller Support</td>
-      <td>Mod,Utilities,RPG,Game Development,Singleplaye...</td>
-      <td>2016-11-26</td>
-      <td>2015-08-12</td>
-      <td>23.0</td>
-      <td>0.0</td>
-    </tr>
-    <tr>
-      <td>2</td>
-      <td>2</td>
-      <td>0.000000</td>
-      <td>False</td>
-      <td>5000.0</td>
-      <td>Adventure,Casual,Indie</td>
-      <td>Single-player,Full controller support,Steam Tr...</td>
-      <td>Point &amp; Click,Adventure,Story Rich,Comedy,Indi...</td>
-      <td>2018-07-02</td>
-      <td>2014-01-28</td>
-      <td>3018.0</td>
-      <td>663.0</td>
-    </tr>
-    <tr>
-      <td>3</td>
-      <td>3</td>
-      <td>1.533333</td>
-      <td>False</td>
-      <td>9900.0</td>
-      <td>Action,RPG</td>
-      <td>Single-player,Multi-player,Steam Achievements,...</td>
-      <td>Medieval,RPG,Open World,Strategy,Sandbox,Actio...</td>
-      <td>2016-11-28</td>
-      <td>2010-03-31</td>
-      <td>63078.0</td>
-      <td>1746.0</td>
-    </tr>
-    <tr>
-      <td>4</td>
-      <td>4</td>
-      <td>22.333333</td>
-      <td>False</td>
-      <td>4800.0</td>
-      <td>Action,Indie,Strategy</td>
-      <td>Single-player,Co-op,Steam Achievements,Full co...</td>
-      <td>Tower Defense,Co-op,Action,Strategy,Online Co-...</td>
-      <td>2018-03-04</td>
-      <td>2012-07-30</td>
-      <td>8841.0</td>
-      <td>523.0</td>
-    </tr>
-    <tr>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-    </tr>
-    <tr>
-      <td>436</td>
-      <td>85</td>
-      <td>NaN</td>
-      <td>False</td>
-      <td>5000.0</td>
-      <td>Action</td>
-      <td>Single-player,Steam Achievements,Full controll...</td>
-      <td>Western,FPS,Action,Story Rich,Bullet Time,Shoo...</td>
-      <td>2018-03-23</td>
-      <td>2013-05-22</td>
-      <td>9334.0</td>
-      <td>516.0</td>
-    </tr>
-    <tr>
-      <td>437</td>
-      <td>86</td>
-      <td>NaN</td>
-      <td>False</td>
-      <td>3600.0</td>
-      <td>Action,Adventure</td>
-      <td>Single-player</td>
-      <td>Adventure,Action,Ninja,Stealth,Cute,Singleplay...</td>
-      <td>2018-03-03</td>
-      <td>2009-09-14</td>
-      <td>1245.0</td>
-      <td>176.0</td>
-    </tr>
-    <tr>
-      <td>438</td>
-      <td>87</td>
-      <td>NaN</td>
-      <td>False</td>
-      <td>11200.0</td>
-      <td>Simulation,Strategy</td>
-      <td>Single-player,Multi-player,Cross-Platform Mult...</td>
-      <td>Grand Strategy,Strategy,Historical,Simulation,...</td>
-      <td>2018-02-18</td>
-      <td>2013-08-13</td>
-      <td>33128.0</td>
-      <td>6350.0</td>
-    </tr>
-    <tr>
-      <td>439</td>
-      <td>88</td>
-      <td>NaN</td>
-      <td>True</td>
-      <td>0.0</td>
-      <td>Action,Adventure,RPG,Simulation,Sports,Strategy</td>
-      <td>Single-player,Multi-player,Co-op,Online Co-op,...</td>
-      <td>VR,RPG,Action,Sports,Simulation,Adventure,Stra...</td>
-      <td>2017-11-19</td>
-      <td>2017-06-19</td>
-      <td>5.0</td>
-      <td>0.0</td>
-    </tr>
-    <tr>
-      <td>440</td>
-      <td>89</td>
-      <td>NaN</td>
-      <td>False</td>
-      <td>26800.0</td>
-      <td>Action,Strategy</td>
-      <td>Single-player,Multi-player,Steam Achievements,...</td>
-      <td>Strategy,Fantasy,Turn-Based Strategy,RTS,Grand...</td>
-      <td>2018-11-25</td>
-      <td>2017-09-28</td>
-      <td>17777.0</td>
-      <td>2594.0</td>
-    </tr>
-  </tbody>
-</table>
-<p>441 rows × 11 columns</p>
-</div>
+<div class="output_png output_subarea ">
+<img src="data:image/png;base64,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
+"
+>
 </div>
 
 </div>
@@ -13459,955 +13769,18 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[102]:</div>
+<div class="prompt input_prompt">In&nbsp;[84]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># check null values</span>
-<span class="n">game_info</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-
-<span class="c1">#fill missing purchase date with the most frequent value in purchase_date column</span>
-<span class="n">game_info</span><span class="p">[</span><span class="s1">&#39;purchase_date&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">game_info</span><span class="p">[</span><span class="s1">&#39;purchase_date&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mode</span><span class="p">()[</span><span class="mi">0</span><span class="p">],</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-
-<span class="c1">#fille missing number of positive_reviews and negative_reviews with zeros</span>
-<span class="n">game_info</span><span class="p">[</span><span class="s1">&#39;total_positive_reviews&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="n">game_info</span><span class="p">[</span><span class="s1">&#39;total_negative_reviews&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-
-<span class="c1">#transfer boolean values to 1(true) and 0(false)</span>
-<span class="n">game_info</span><span class="p">[</span><span class="s1">&#39;is_free&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">game_info</span><span class="p">[</span><span class="s1">&#39;is_free&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">({</span><span class="kc">False</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span> <span class="kc">True</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">})</span>
-
-<span class="c1">#drop outliers</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">train_label</span> <span class="o">=</span> <span class="n">train_data</span><span class="p">[</span><span class="s1">&#39;playtime_forever&#39;</span><span class="p">]</span>
+<span class="n">train_data</span> <span class="o">=</span> <span class="n">train_data</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;playtime_forever&#39;</span><span class="p">])</span>
+<span class="n">test_data</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;playtime_forever&#39;</span><span class="p">],</span><span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
 
-<span class="c1"># split strings in the categorical columns</span>
-<span class="n">game_info</span><span class="p">[</span><span class="s1">&#39;genres&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">game_info</span><span class="p">[</span><span class="s1">&#39;genres&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
-<span class="n">game_info</span><span class="p">[</span><span class="s1">&#39;categories&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">game_info</span><span class="p">[</span><span class="s1">&#39;categories&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
-<span class="n">game_info</span><span class="p">[</span><span class="s1">&#39;tags&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">game_info</span><span class="p">[</span><span class="s1">&#39;tags&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
-
-<span class="n">game_info</span>
-
-<span class="c1">#game_info.isnull().sum()</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt output_prompt">Out[102]:</div>
-
-
-
-<div class="output_html rendered_html output_subarea output_execute_result">
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>id</th>
-      <th>playtime_forever</th>
-      <th>is_free</th>
-      <th>price</th>
-      <th>genres</th>
-      <th>categories</th>
-      <th>tags</th>
-      <th>purchase_date</th>
-      <th>release_date</th>
-      <th>total_positive_reviews</th>
-      <th>total_negative_reviews</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>0</td>
-      <td>0</td>
-      <td>0.000000</td>
-      <td>0.0</td>
-      <td>3700.0</td>
-      <td>[Adventure, Casual, Indie]</td>
-      <td>[Single-player, Steam Trading Cards, Steam Cloud]</td>
-      <td>[Indie, Adventure, Story Rich, Casual, Atmosph...</td>
-      <td>2018-07-02</td>
-      <td>2013-12-10</td>
-      <td>372.0</td>
-      <td>96.0</td>
-    </tr>
-    <tr>
-      <td>1</td>
-      <td>1</td>
-      <td>0.016667</td>
-      <td>1.0</td>
-      <td>0.0</td>
-      <td>[RPG]</td>
-      <td>[Single-player, Partial Controller Support]</td>
-      <td>[Mod, Utilities, RPG, Game Development, Single...</td>
-      <td>2016-11-26</td>
-      <td>2015-08-12</td>
-      <td>23.0</td>
-      <td>0.0</td>
-    </tr>
-    <tr>
-      <td>2</td>
-      <td>2</td>
-      <td>0.000000</td>
-      <td>0.0</td>
-      <td>5000.0</td>
-      <td>[Adventure, Casual, Indie]</td>
-      <td>[Single-player, Full controller support, Steam...</td>
-      <td>[Point &amp; Click, Adventure, Story Rich, Comedy,...</td>
-      <td>2018-07-02</td>
-      <td>2014-01-28</td>
-      <td>3018.0</td>
-      <td>663.0</td>
-    </tr>
-    <tr>
-      <td>3</td>
-      <td>3</td>
-      <td>1.533333</td>
-      <td>0.0</td>
-      <td>9900.0</td>
-      <td>[Action, RPG]</td>
-      <td>[Single-player, Multi-player, Steam Achievemen...</td>
-      <td>[Medieval, RPG, Open World, Strategy, Sandbox,...</td>
-      <td>2016-11-28</td>
-      <td>2010-03-31</td>
-      <td>63078.0</td>
-      <td>1746.0</td>
-    </tr>
-    <tr>
-      <td>4</td>
-      <td>4</td>
-      <td>22.333333</td>
-      <td>0.0</td>
-      <td>4800.0</td>
-      <td>[Action, Indie, Strategy]</td>
-      <td>[Single-player, Co-op, Steam Achievements, Ful...</td>
-      <td>[Tower Defense, Co-op, Action, Strategy, Onlin...</td>
-      <td>2018-03-04</td>
-      <td>2012-07-30</td>
-      <td>8841.0</td>
-      <td>523.0</td>
-    </tr>
-    <tr>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-    </tr>
-    <tr>
-      <td>436</td>
-      <td>85</td>
-      <td>NaN</td>
-      <td>0.0</td>
-      <td>5000.0</td>
-      <td>[Action]</td>
-      <td>[Single-player, Steam Achievements, Full contr...</td>
-      <td>[Western, FPS, Action, Story Rich, Bullet Time...</td>
-      <td>2018-03-23</td>
-      <td>2013-05-22</td>
-      <td>9334.0</td>
-      <td>516.0</td>
-    </tr>
-    <tr>
-      <td>437</td>
-      <td>86</td>
-      <td>NaN</td>
-      <td>0.0</td>
-      <td>3600.0</td>
-      <td>[Action, Adventure]</td>
-      <td>[Single-player]</td>
-      <td>[Adventure, Action, Ninja, Stealth, Cute, Sing...</td>
-      <td>2018-03-03</td>
-      <td>2009-09-14</td>
-      <td>1245.0</td>
-      <td>176.0</td>
-    </tr>
-    <tr>
-      <td>438</td>
-      <td>87</td>
-      <td>NaN</td>
-      <td>0.0</td>
-      <td>11200.0</td>
-      <td>[Simulation, Strategy]</td>
-      <td>[Single-player, Multi-player, Cross-Platform M...</td>
-      <td>[Grand Strategy, Strategy, Historical, Simulat...</td>
-      <td>2018-02-18</td>
-      <td>2013-08-13</td>
-      <td>33128.0</td>
-      <td>6350.0</td>
-    </tr>
-    <tr>
-      <td>439</td>
-      <td>88</td>
-      <td>NaN</td>
-      <td>1.0</td>
-      <td>0.0</td>
-      <td>[Action, Adventure, RPG, Simulation, Sports, S...</td>
-      <td>[Single-player, Multi-player, Co-op, Online Co...</td>
-      <td>[VR, RPG, Action, Sports, Simulation, Adventur...</td>
-      <td>2017-11-19</td>
-      <td>2017-06-19</td>
-      <td>5.0</td>
-      <td>0.0</td>
-    </tr>
-    <tr>
-      <td>440</td>
-      <td>89</td>
-      <td>NaN</td>
-      <td>0.0</td>
-      <td>26800.0</td>
-      <td>[Action, Strategy]</td>
-      <td>[Single-player, Multi-player, Steam Achievemen...</td>
-      <td>[Strategy, Fantasy, Turn-Based Strategy, RTS, ...</td>
-      <td>2018-11-25</td>
-      <td>2017-09-28</td>
-      <td>17777.0</td>
-      <td>2594.0</td>
-    </tr>
-  </tbody>
-</table>
-<p>441 rows × 11 columns</p>
-</div>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[103]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1">#dataframe with only categorical values</span>
-<span class="n">cate_df</span> <span class="o">=</span> <span class="n">game_info</span><span class="p">[[</span><span class="s1">&#39;genres&#39;</span><span class="p">,</span> <span class="s1">&#39;categories&#39;</span><span class="p">,</span> <span class="s1">&#39;tags&#39;</span><span class="p">]]</span>
-
-
-<span class="c1"># one_hot encoding categorical columns </span>
-<span class="n">genres_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">get_dummies</span><span class="p">(</span><span class="n">cate_df</span><span class="p">[</span><span class="s1">&#39;genres&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">)</span><span class="o">.</span><span class="n">stack</span><span class="p">())</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-<span class="n">categories_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">get_dummies</span><span class="p">(</span><span class="n">cate_df</span><span class="p">[</span><span class="s1">&#39;categories&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">)</span><span class="o">.</span><span class="n">stack</span><span class="p">())</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-<span class="n">tags_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">get_dummies</span><span class="p">(</span><span class="n">cate_df</span><span class="p">[</span><span class="s1">&#39;tags&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">)</span><span class="o">.</span><span class="n">stack</span><span class="p">())</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-
-<span class="c1"># contatenate categorical dataframes with game_info</span>
-<span class="n">game_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">game_info</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;genres&#39;</span><span class="p">,</span> <span class="s1">&#39;categories&#39;</span><span class="p">,</span> <span class="s1">&#39;tags&#39;</span><span class="p">]),</span> <span class="n">genres_df</span><span class="p">,</span> <span class="n">categories_df</span><span class="p">,</span> <span class="n">tags_df</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-<span class="n">game_df</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt output_prompt">Out[103]:</div>
-
-
-
-<div class="output_html rendered_html output_subarea output_execute_result">
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>id</th>
-      <th>playtime_forever</th>
-      <th>is_free</th>
-      <th>price</th>
-      <th>purchase_date</th>
-      <th>release_date</th>
-      <th>total_positive_reviews</th>
-      <th>total_negative_reviews</th>
-      <th>Action</th>
-      <th>Adventure</th>
-      <th>...</th>
-      <th>Voxel</th>
-      <th>Walking Simulator</th>
-      <th>War</th>
-      <th>Wargame</th>
-      <th>Warhammer 40K</th>
-      <th>Western</th>
-      <th>World War I</th>
-      <th>World War II</th>
-      <th>Zombies</th>
-      <th>eSports</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>0</td>
-      <td>0</td>
-      <td>0.000000</td>
-      <td>0.0</td>
-      <td>3700.0</td>
-      <td>2018-07-02</td>
-      <td>2013-12-10</td>
-      <td>372.0</td>
-      <td>96.0</td>
-      <td>0</td>
-      <td>1</td>
-      <td>...</td>
-      <td>0</td>
-      <td>1</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-    </tr>
-    <tr>
-      <td>1</td>
-      <td>1</td>
-      <td>0.016667</td>
-      <td>1.0</td>
-      <td>0.0</td>
-      <td>2016-11-26</td>
-      <td>2015-08-12</td>
-      <td>23.0</td>
-      <td>0.0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>...</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-    </tr>
-    <tr>
-      <td>2</td>
-      <td>2</td>
-      <td>0.000000</td>
-      <td>0.0</td>
-      <td>5000.0</td>
-      <td>2018-07-02</td>
-      <td>2014-01-28</td>
-      <td>3018.0</td>
-      <td>663.0</td>
-      <td>0</td>
-      <td>1</td>
-      <td>...</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-    </tr>
-    <tr>
-      <td>3</td>
-      <td>3</td>
-      <td>1.533333</td>
-      <td>0.0</td>
-      <td>9900.0</td>
-      <td>2016-11-28</td>
-      <td>2010-03-31</td>
-      <td>63078.0</td>
-      <td>1746.0</td>
-      <td>1</td>
-      <td>0</td>
-      <td>...</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-    </tr>
-    <tr>
-      <td>4</td>
-      <td>4</td>
-      <td>22.333333</td>
-      <td>0.0</td>
-      <td>4800.0</td>
-      <td>2018-03-04</td>
-      <td>2012-07-30</td>
-      <td>8841.0</td>
-      <td>523.0</td>
-      <td>1</td>
-      <td>0</td>
-      <td>...</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-    </tr>
-    <tr>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-    </tr>
-    <tr>
-      <td>436</td>
-      <td>85</td>
-      <td>NaN</td>
-      <td>0.0</td>
-      <td>5000.0</td>
-      <td>2018-03-23</td>
-      <td>2013-05-22</td>
-      <td>9334.0</td>
-      <td>516.0</td>
-      <td>1</td>
-      <td>0</td>
-      <td>...</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>1</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-    </tr>
-    <tr>
-      <td>437</td>
-      <td>86</td>
-      <td>NaN</td>
-      <td>0.0</td>
-      <td>3600.0</td>
-      <td>2018-03-03</td>
-      <td>2009-09-14</td>
-      <td>1245.0</td>
-      <td>176.0</td>
-      <td>1</td>
-      <td>1</td>
-      <td>...</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-    </tr>
-    <tr>
-      <td>438</td>
-      <td>87</td>
-      <td>NaN</td>
-      <td>0.0</td>
-      <td>11200.0</td>
-      <td>2018-02-18</td>
-      <td>2013-08-13</td>
-      <td>33128.0</td>
-      <td>6350.0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>...</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-    </tr>
-    <tr>
-      <td>439</td>
-      <td>88</td>
-      <td>NaN</td>
-      <td>1.0</td>
-      <td>0.0</td>
-      <td>2017-11-19</td>
-      <td>2017-06-19</td>
-      <td>5.0</td>
-      <td>0.0</td>
-      <td>1</td>
-      <td>1</td>
-      <td>...</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-    </tr>
-    <tr>
-      <td>440</td>
-      <td>89</td>
-      <td>NaN</td>
-      <td>0.0</td>
-      <td>26800.0</td>
-      <td>2018-11-25</td>
-      <td>2017-09-28</td>
-      <td>17777.0</td>
-      <td>2594.0</td>
-      <td>1</td>
-      <td>0</td>
-      <td>...</td>
-      <td>0</td>
-      <td>0</td>
-      <td>1</td>
-      <td>0</td>
-      <td>1</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-    </tr>
-  </tbody>
-</table>
-<p>441 rows × 374 columns</p>
-</div>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[104]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># drop duplicate columns</span>
-<span class="n">game_df</span> <span class="o">=</span> <span class="n">game_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="o">~</span><span class="n">game_df</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">duplicated</span><span class="p">()]</span>
-<span class="n">game_df</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt output_prompt">Out[104]:</div>
-
-
-
-<div class="output_html rendered_html output_subarea output_execute_result">
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>id</th>
-      <th>playtime_forever</th>
-      <th>is_free</th>
-      <th>price</th>
-      <th>purchase_date</th>
-      <th>release_date</th>
-      <th>total_positive_reviews</th>
-      <th>total_negative_reviews</th>
-      <th>Action</th>
-      <th>Adventure</th>
-      <th>...</th>
-      <th>Voxel</th>
-      <th>Walking Simulator</th>
-      <th>War</th>
-      <th>Wargame</th>
-      <th>Warhammer 40K</th>
-      <th>Western</th>
-      <th>World War I</th>
-      <th>World War II</th>
-      <th>Zombies</th>
-      <th>eSports</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>0</td>
-      <td>0</td>
-      <td>0.000000</td>
-      <td>0.0</td>
-      <td>3700.0</td>
-      <td>2018-07-02</td>
-      <td>2013-12-10</td>
-      <td>372.0</td>
-      <td>96.0</td>
-      <td>0</td>
-      <td>1</td>
-      <td>...</td>
-      <td>0</td>
-      <td>1</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-    </tr>
-    <tr>
-      <td>1</td>
-      <td>1</td>
-      <td>0.016667</td>
-      <td>1.0</td>
-      <td>0.0</td>
-      <td>2016-11-26</td>
-      <td>2015-08-12</td>
-      <td>23.0</td>
-      <td>0.0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>...</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-    </tr>
-    <tr>
-      <td>2</td>
-      <td>2</td>
-      <td>0.000000</td>
-      <td>0.0</td>
-      <td>5000.0</td>
-      <td>2018-07-02</td>
-      <td>2014-01-28</td>
-      <td>3018.0</td>
-      <td>663.0</td>
-      <td>0</td>
-      <td>1</td>
-      <td>...</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-    </tr>
-    <tr>
-      <td>3</td>
-      <td>3</td>
-      <td>1.533333</td>
-      <td>0.0</td>
-      <td>9900.0</td>
-      <td>2016-11-28</td>
-      <td>2010-03-31</td>
-      <td>63078.0</td>
-      <td>1746.0</td>
-      <td>1</td>
-      <td>0</td>
-      <td>...</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-    </tr>
-    <tr>
-      <td>4</td>
-      <td>4</td>
-      <td>22.333333</td>
-      <td>0.0</td>
-      <td>4800.0</td>
-      <td>2018-03-04</td>
-      <td>2012-07-30</td>
-      <td>8841.0</td>
-      <td>523.0</td>
-      <td>1</td>
-      <td>0</td>
-      <td>...</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-    </tr>
-    <tr>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-    </tr>
-    <tr>
-      <td>436</td>
-      <td>85</td>
-      <td>NaN</td>
-      <td>0.0</td>
-      <td>5000.0</td>
-      <td>2018-03-23</td>
-      <td>2013-05-22</td>
-      <td>9334.0</td>
-      <td>516.0</td>
-      <td>1</td>
-      <td>0</td>
-      <td>...</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>1</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-    </tr>
-    <tr>
-      <td>437</td>
-      <td>86</td>
-      <td>NaN</td>
-      <td>0.0</td>
-      <td>3600.0</td>
-      <td>2018-03-03</td>
-      <td>2009-09-14</td>
-      <td>1245.0</td>
-      <td>176.0</td>
-      <td>1</td>
-      <td>1</td>
-      <td>...</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-    </tr>
-    <tr>
-      <td>438</td>
-      <td>87</td>
-      <td>NaN</td>
-      <td>0.0</td>
-      <td>11200.0</td>
-      <td>2018-02-18</td>
-      <td>2013-08-13</td>
-      <td>33128.0</td>
-      <td>6350.0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>...</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-    </tr>
-    <tr>
-      <td>439</td>
-      <td>88</td>
-      <td>NaN</td>
-      <td>1.0</td>
-      <td>0.0</td>
-      <td>2017-11-19</td>
-      <td>2017-06-19</td>
-      <td>5.0</td>
-      <td>0.0</td>
-      <td>1</td>
-      <td>1</td>
-      <td>...</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-    </tr>
-    <tr>
-      <td>440</td>
-      <td>89</td>
-      <td>NaN</td>
-      <td>0.0</td>
-      <td>26800.0</td>
-      <td>2018-11-25</td>
-      <td>2017-09-28</td>
-      <td>17777.0</td>
-      <td>2594.0</td>
-      <td>1</td>
-      <td>0</td>
-      <td>...</td>
-      <td>0</td>
-      <td>0</td>
-      <td>1</td>
-      <td>0</td>
-      <td>1</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-    </tr>
-  </tbody>
-</table>
-<p>441 rows × 353 columns</p>
-</div>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[105]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">game_df</span> <span class="o">=</span> <span class="n">extract_dateinfo</span><span class="p">(</span><span class="n">game_df</span><span class="p">,</span> <span class="s1">&#39;purchase_date&#39;</span><span class="p">)</span>
-<span class="n">game_df</span> <span class="o">=</span> <span class="n">extract_dateinfo</span><span class="p">(</span><span class="n">game_df</span><span class="p">,</span> <span class="s1">&#39;release_date&#39;</span><span class="p">)</span>
-<span class="n">game_df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;purchase_date&#39;</span><span class="p">,</span> <span class="s1">&#39;release_date&#39;</span><span class="p">],</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="c1">#game_df.drop([&#39;purchase_date&#39;])</span>
-<span class="c1">#&#39;purchase_date&#39; in game_df</span>
-<span class="c1">#game_df.loc[:,&#39;purchase_date&#39;]</span>
-<span class="n">game_df</span>
+<span class="c1"># print(&#39;X_train shape: &#39;, X_train.shape)</span>
+<span class="c1"># print(&#39;X_val shape: &#39;, X_val.shape)</span>
+<span class="c1"># print(&#39;y_train shape : &#39;, y_train.shape)</span>
+<span class="c1"># print(&#39;y_val shape : &#39;, y_val.shape)</span>
 </pre></div>
 
     </div>
@@ -14424,31 +13797,38 @@ div#notebook {
 
 
 <div class="output_subarea output_stream output_stderr output_text">
-<pre>/anaconda3/lib/python3.6/site-packages/ipykernel_launcher.py:2: SettingWithCopyWarning: 
-A value is trying to be set on a copy of a slice from a DataFrame.
-Try using .loc[row_indexer,col_indexer] = value instead
+<pre>/anaconda3/lib/python3.6/site-packages/pandas/core/frame.py:4102: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame
 
 See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
-  
-/anaconda3/lib/python3.6/site-packages/ipykernel_launcher.py:3: SettingWithCopyWarning: 
-A value is trying to be set on a copy of a slice from a DataFrame.
-Try using .loc[row_indexer,col_indexer] = value instead
-
-See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
-  This is separate from the ipykernel package so we can avoid doing imports until
-/anaconda3/lib/python3.6/site-packages/ipykernel_launcher.py:4: SettingWithCopyWarning: 
-A value is trying to be set on a copy of a slice from a DataFrame.
-Try using .loc[row_indexer,col_indexer] = value instead
-
-See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
-  after removing the cwd from sys.path.
+  errors=errors,
 </pre>
 </div>
 </div>
 
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[85]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">train_data</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
 <div class="output_area">
 
-    <div class="prompt output_prompt">Out[105]:</div>
+    <div class="prompt output_prompt">Out[85]:</div>
 
 
 
@@ -14471,297 +13851,68 @@ See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stabl
   <thead>
     <tr style="text-align: right;">
       <th></th>
-      <th>id</th>
-      <th>playtime_forever</th>
       <th>is_free</th>
       <th>price</th>
       <th>total_positive_reviews</th>
       <th>total_negative_reviews</th>
-      <th>Action</th>
-      <th>Adventure</th>
-      <th>Animation &amp; Modeling</th>
-      <th>Audio Production</th>
-      <th>...</th>
-      <th>World War I</th>
-      <th>World War II</th>
-      <th>Zombies</th>
-      <th>eSports</th>
       <th>purchase_date_year</th>
-      <th>purchase_date_month</th>
-      <th>purchase_date_day</th>
       <th>release_date_year</th>
-      <th>release_date_month</th>
-      <th>release_date_day</th>
+      <th>cate_count</th>
     </tr>
   </thead>
   <tbody>
     <tr>
       <td>0</td>
-      <td>0</td>
-      <td>0.000000</td>
       <td>0.0</td>
       <td>3700.0</td>
       <td>372.0</td>
       <td>96.0</td>
-      <td>0</td>
-      <td>1</td>
-      <td>0</td>
-      <td>0</td>
-      <td>...</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
       <td>2018</td>
-      <td>7</td>
-      <td>2</td>
       <td>2013</td>
-      <td>12</td>
-      <td>10</td>
+      <td>16</td>
     </tr>
     <tr>
       <td>1</td>
-      <td>1</td>
-      <td>0.016667</td>
       <td>1.0</td>
       <td>0.0</td>
       <td>23.0</td>
       <td>0.0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>...</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
       <td>2016</td>
-      <td>11</td>
-      <td>26</td>
       <td>2015</td>
       <td>8</td>
-      <td>12</td>
     </tr>
     <tr>
       <td>2</td>
-      <td>2</td>
-      <td>0.000000</td>
       <td>0.0</td>
       <td>5000.0</td>
       <td>3018.0</td>
       <td>663.0</td>
-      <td>0</td>
-      <td>1</td>
-      <td>0</td>
-      <td>0</td>
-      <td>...</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
       <td>2018</td>
-      <td>7</td>
-      <td>2</td>
       <td>2014</td>
-      <td>1</td>
-      <td>28</td>
+      <td>24</td>
     </tr>
     <tr>
       <td>3</td>
-      <td>3</td>
-      <td>1.533333</td>
       <td>0.0</td>
       <td>9900.0</td>
       <td>63078.0</td>
       <td>1746.0</td>
-      <td>1</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>...</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
       <td>2016</td>
-      <td>11</td>
-      <td>28</td>
       <td>2010</td>
-      <td>3</td>
-      <td>31</td>
+      <td>25</td>
     </tr>
     <tr>
       <td>4</td>
-      <td>4</td>
-      <td>22.333333</td>
       <td>0.0</td>
       <td>4800.0</td>
       <td>8841.0</td>
       <td>523.0</td>
-      <td>1</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>...</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
       <td>2018</td>
-      <td>3</td>
-      <td>4</td>
       <td>2012</td>
-      <td>7</td>
-      <td>30</td>
-    </tr>
-    <tr>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-    </tr>
-    <tr>
-      <td>436</td>
-      <td>85</td>
-      <td>NaN</td>
-      <td>0.0</td>
-      <td>5000.0</td>
-      <td>9334.0</td>
-      <td>516.0</td>
-      <td>1</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>...</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>2018</td>
-      <td>3</td>
-      <td>23</td>
-      <td>2013</td>
-      <td>5</td>
-      <td>22</td>
-    </tr>
-    <tr>
-      <td>437</td>
-      <td>86</td>
-      <td>NaN</td>
-      <td>0.0</td>
-      <td>3600.0</td>
-      <td>1245.0</td>
-      <td>176.0</td>
-      <td>1</td>
-      <td>1</td>
-      <td>0</td>
-      <td>0</td>
-      <td>...</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>2018</td>
-      <td>3</td>
-      <td>3</td>
-      <td>2009</td>
-      <td>9</td>
-      <td>14</td>
-    </tr>
-    <tr>
-      <td>438</td>
-      <td>87</td>
-      <td>NaN</td>
-      <td>0.0</td>
-      <td>11200.0</td>
-      <td>33128.0</td>
-      <td>6350.0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>...</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>2018</td>
-      <td>2</td>
-      <td>18</td>
-      <td>2013</td>
-      <td>8</td>
-      <td>13</td>
-    </tr>
-    <tr>
-      <td>439</td>
-      <td>88</td>
-      <td>NaN</td>
-      <td>1.0</td>
-      <td>0.0</td>
-      <td>5.0</td>
-      <td>0.0</td>
-      <td>1</td>
-      <td>1</td>
-      <td>0</td>
-      <td>0</td>
-      <td>...</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>2017</td>
-      <td>11</td>
-      <td>19</td>
-      <td>2017</td>
-      <td>6</td>
-      <td>19</td>
-    </tr>
-    <tr>
-      <td>440</td>
-      <td>89</td>
-      <td>NaN</td>
-      <td>0.0</td>
-      <td>26800.0</td>
-      <td>17777.0</td>
-      <td>2594.0</td>
-      <td>1</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>...</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>2018</td>
-      <td>11</td>
-      <td>25</td>
-      <td>2017</td>
-      <td>9</td>
-      <td>28</td>
+      <td>26</td>
     </tr>
   </tbody>
 </table>
-<p>441 rows × 357 columns</p>
 </div>
 </div>
 
@@ -14773,72 +13924,46 @@ See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stabl
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[108]:</div>
+<div class="prompt input_prompt">In&nbsp;[86]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">train_data</span> <span class="o">=</span> <span class="n">game_df</span><span class="p">[:</span><span class="n">train_len</span><span class="p">]</span>
-<span class="n">test_data</span> <span class="o">=</span> <span class="n">game_df</span><span class="p">[</span><span class="n">train_len</span><span class="p">:]</span>
-
-<span class="n">train_label</span> <span class="o">=</span> <span class="n">train_data</span><span class="p">[</span><span class="s1">&#39;playtime_forever&#39;</span><span class="p">]</span>
-<span class="n">train_data</span> <span class="o">=</span> <span class="n">train_data</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;playtime_forever&#39;</span><span class="p">])</span>
-
-<span class="c1"># split game_info into training and validating datasets</span>
-<span class="n">X_train</span><span class="p">,</span> <span class="n">X_val</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">y_val</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
-
-
-<span class="n">test_data</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;playtime_forever&#39;</span><span class="p">],</span><span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-
-<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;X_train shape: &#39;</span><span class="p">,</span> <span class="n">X_train</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;X_val shape: &#39;</span><span class="p">,</span> <span class="n">X_val</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;y_train shape : &#39;</span><span class="p">,</span> <span class="n">y_train</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;y_val shape : &#39;</span><span class="p">,</span> <span class="n">y_val</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">X_train</span><span class="p">,</span> <span class="n">X_val</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">y_val</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span><span class="n">train_data</span><span class="p">,</span> <span class="n">train_label</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
 </pre></div>
 
     </div>
 </div>
 </div>
 
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt"></div>
-
-
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>X_train shape:  (280, 356)
-X_val shape:  (71, 356)
-y_train shape :  (280,)
-y_val shape :  (71,)
-</pre>
-</div>
-</div>
-
-</div>
-</div>
-
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[110]:</div>
+<div class="prompt input_prompt">In&nbsp;[96]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1">#lab_enc = preprocessing.LabelEncoder()</span>
-<span class="c1">#train_encoded = lab_enc.fit_transform(y_train)</span>
-<span class="c1">#val_encoded = lab_enc.fit_transform(y_val)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">sklearn</span> <span class="k">import</span> <span class="n">datasets</span><span class="p">,</span> <span class="n">linear_model</span>
+<span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="k">import</span> <span class="n">cross_val_score</span>
+<span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="k">import</span> <span class="n">StandardScaler</span>
+<span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="k">import</span> <span class="n">mean_squared_error</span><span class="p">,</span> <span class="n">make_scorer</span>
+<span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="k">import</span> <span class="n">LinearRegression</span>
 
-<span class="n">linreg</span> <span class="o">=</span> <span class="n">LinearRegression</span><span class="p">()</span>
-<span class="n">linreg</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span>
-<span class="n">y_pred</span> <span class="o">=</span> <span class="n">linreg</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X_val</span><span class="p">)</span>
+<span class="n">scaler</span> <span class="o">=</span> <span class="n">StandardScaler</span><span class="p">()</span>
+<span class="n">scaler</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">)</span>
+<span class="n">scaler</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">X_train</span><span class="p">)</span>
 
+<span class="k">def</span> <span class="nf">rmse</span><span class="p">(</span><span class="n">y_val</span><span class="p">,</span> <span class="n">y_val_pred</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">mean_squared_error</span><span class="p">(</span><span class="n">y_val</span><span class="p">,</span> <span class="n">y_val_pred</span><span class="p">))</span>
+<span class="n">score</span> <span class="o">=</span> <span class="n">make_scorer</span><span class="p">(</span><span class="n">rmse</span><span class="p">,</span> <span class="n">greater_is_better</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="c1">#linreg = LinearRegression()</span>
+<span class="c1">#linreg.fit(X_train, y_train)</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">linear_model</span><span class="o">.</span><span class="n">LinearRegression</span><span class="p">()</span>
+<span class="n">y_val_pred</span> <span class="o">=</span> <span class="n">linreg</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X_val</span><span class="p">)</span>
 <span class="n">y_test_pred</span> <span class="o">=</span> <span class="n">linreg</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">test_data</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">cross_val_score</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">cv</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">scoring</span><span class="o">=</span><span class="n">score</span><span class="p">))</span>  
+<span class="c1">#print(linreg.score(X_train, y_train))</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Mean squared error: </span><span class="si">%.2f</span><span class="s2">&quot;</span>
-      <span class="o">%</span> <span class="n">mean_squared_error</span><span class="p">(</span><span class="n">y_val</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">))</span>
-
-<span class="nb">print</span><span class="p">(</span><span class="n">y_test_pred</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Root Mean squared error: </span><span class="si">%.2f</span><span class="s2">&quot;</span>
+      <span class="o">%</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">mean_squared_error</span><span class="p">(</span><span class="n">y_val</span><span class="p">,</span> <span class="n">y_val_pred</span><span class="p">)))</span>
 </pre></div>
 
     </div>
@@ -14855,25 +13980,8 @@ y_val shape :  (71,)
 
 
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>Mean squared error: 654.97
-[ -6.04891426  10.50493159 -39.37029071 -10.48661057   3.23690408
-  34.41718337  22.01602616   0.67946802  19.76603138   8.83723885
-   6.05199318  -2.32410735   5.06711956 -50.77403603  -1.37760857
-  21.18455031  -2.77568198  -4.20643779  23.87214725 -26.71681378
-  -8.3038336   22.23204223   7.25708553 -12.41526474  -1.29435318
- -69.73243236  18.90254667 -28.85647055   0.40611706 -21.65671452
-  14.41236465  -0.36047567 -32.52676216   6.98695512 -11.68874498
-  16.51294023 -16.30516737  26.13060355  -1.07235096  11.9295633
-  22.44262571   1.20336982  -4.1533696   14.05693383 -39.47184674
-   9.02190526  23.04255771 -11.89088023 -12.98059335 -18.98334322
-  19.33792925  -9.13953081  11.27595371 -14.67943832  22.60470421
- -25.22134632 -28.66496823   1.63235343  -5.8300388   -1.41562779
-  41.39643643   6.67107091  -8.59893958  -5.49785785   6.15871558
-  -5.03896041  -8.40188948  -1.94801832  11.46247839   3.13923126
-   8.28438483  46.69811734  10.24565707  26.66972385  11.64156118
-  39.21046441   1.08310062 -13.29175984 -28.12495634  -4.79236474
-  -7.00849903 -11.55550256  -4.63871638 -35.79046323  18.88294001
- -28.34323185  13.49997387  -7.33146274   3.0650839  -17.69353464]
+<pre>[12.68954785  8.72289586  6.30517025]
+Root Mean squared error: 13.78
 </pre>
 </div>
 </div>
@@ -14884,12 +13992,10 @@ y_val shape :  (71,)
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[119]:</div>
+<div class="prompt input_prompt">In&nbsp;[35]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">csv</span>
-
-<span class="n">result_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">y_test_pred</span><span class="p">,</span> <span class="n">columns</span> <span class="o">=</span><span class="p">[</span><span class="s1">&#39;playtime_forever&#39;</span><span class="p">])</span> 
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">result_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">y_test_pred</span><span class="p">,</span> <span class="n">columns</span> <span class="o">=</span><span class="p">[</span><span class="s1">&#39;playtime_forever&#39;</span><span class="p">])</span> 
 <span class="n">result_df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;id&#39;</span>
 <span class="n">result_df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="s1">&#39;result.csv&#39;</span><span class="p">)</span>
 </pre></div>
